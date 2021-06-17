@@ -80,3 +80,13 @@ First Step:
    
           brain.attach_values2(input, output);
           brain.procces(6,input);
+
+
+
+Little Favor:
+ If you goint to make a video about AI learns something and if you will use my code please don't be selfish and give references. Like giving the link of the script. Or saying it in the video. Thanks 
+ 
+Example of AI learning something:
+https://youtu.be/pDmKVT0qgjM?t=445
+
+I made that video with my code(my code=this attached script). Video is Turkish but you can still see how it learns.
