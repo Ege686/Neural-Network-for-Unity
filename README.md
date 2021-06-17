@@ -4,6 +4,25 @@ It is a neural network brain(AI) for anything in Unity
 
 If you want to something think in Unity you can attach this script to it. But you need to write some basic commands in another script. Don't worry it is easy to use.
 
+Before first step:
+ The input and target output values need to be float list. And they have to be 2 dimension lists.
+ 
+    List<List<float>> input = new List<List<float>>();
+    List<List<float>> output = new List<List<float>>();
+  Like this. You can think first list -which caries another float list- caries samples. And second list-which is in he first list- caries values of your sample.
+ You can add samples as much as you want and you can add values as much as you want too.
+  
+  Output is same. First list caries input sample's target output values list. And second list caries target output values. First List of output needs to match with
+  input's first list. But second list of output can be any number.(Second list of outputs represents the number of predictions)
+  
+ Example:
+  Inputs:     Target Outputs:
+  1,1              1
+  1,0              1
+  0,1              1
+  0,0              0
+
+In this example input and output lists' first lists' counts have to be 4. And each input's second layers' count has to be 2. Finally each target ouput's second layers' count has to be 1.
 
 First Step:
  You need to find the AI script in the control script.
