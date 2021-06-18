@@ -16,12 +16,19 @@ Before first step:
   input's first list. But second list of output can be any number.(Second list of outputs represents the number of predictions)
   
  Example:
-  Inputs:     Target Outputs:
-  1,1              1
-  1,0              1
-  0,1              1
-  0,0              0
+ 
+  Inputs:  
+  (1,1)        
+  (1,0)      
+  (0,1)        
+  (0,0)    
 
+  Target Outputs:
+  (1)
+  (1)
+  (1)
+  (0)
+  
 In this example input and output lists' first lists' counts have to be 4. And each input's second layers' count has to be 2. Finally each target ouput's second layers' count has to be 1.
 
 First Step:
