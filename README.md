@@ -89,6 +89,32 @@ First Step:
           brain.procces(6,input);
 
 
+  Saving Part
+    Yes you also need to save your weights and bias values. So this can be done with save_weights() and save_bias() methods. These methods save values as txt file.
+    Each method takes 1 argument: name: name of the txt file.
+         
+          brain.save_weights("weights1");
+          brain.save_biass("bias1");
+    
+  Setting Part
+    So you saved your values but then what? Of course reading them(if you want). This can be done with set_weights() and set_bias() methods. It will read the txt file you had saved for values.
+    Each method takes 1 argument: name: name of the saved txt file.
+    
+          brain.set_weights("weights1");
+          brain.set_biass("bias1");
+          
+  Reseting Part
+    Sometimes there is a take back method for your mistakes. And this is the time for sometimes. If you want to reset your values you can use reset_values() method. It will reset your weights and bias values.
+    It takes 2 argument: are_weights: If you want to reset your weights values you need to make this variable True(else False),are_bias: If you want to reset your bias values you need to make this variable True(else False)
+    
+           reset_values(True,True);
+    
+  Change a little Part
+     If you are making something learning by trying and with lots of agents you can use these ChangeALittleWeights() and ChangeALittleBias() methods. It will change agents saved weights and bias values. It will not rewrite the saved values txt file. It is only valid for that agent.
+     I will multiply yout weights and bias values something between 0.1 and 0.9 by random. You can change the range by editing the script. Methods are at the bottom of the script.
+ 
+            ChangeALittleWeights();
+            ChangeALittleBias();
 
 Little Favor:
  If you are going to make a video about AI learns something and if you will use my code please don't be selfish and give references. Like giving the link of the script. Or saying it in the video. Thanks 
