@@ -240,10 +240,10 @@ public class neural_network_2 : MonoBehaviour
         }
     }
 
-    void CreateText(string name, string variliable, bool sıfırla)
+    void CreateText(string name, string variliable, bool reset)
     {
         string path = Application.dataPath + "/" + name + ".txt";
-        if (sıfırla)
+        if (reset)
             File.WriteAllText(path, "");
         File.AppendAllText(path, variliable);
     }
