@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class Layer 
 {
@@ -72,4 +73,7 @@ public class Layer
 
     public void UpdateBias(float lr) { bias += bias_d*lr; bias_d = 0; }
     public void BiasD(int batch_size) { for (int n = 0; n < connection_layer.NodeCount; n++) bias_d += connection_layer.Node(n).DeltaValue/batch_size; }
+
+    public void ChangeLittleWeights() { for (int n = 0; n < NodeCount; n++) Node(n).ChangeLittleWeight(); }
+    public void ChangeLittleBias() { bias*= Random.Range(.8f, .1f); }
 }
