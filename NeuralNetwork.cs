@@ -166,7 +166,7 @@ public class NeuralNetwork: MonoBehaviour
             line += 1;
         }
     }
-    public void ChangeVariables(bool weights, bool biases)
+    public void ChangeLittle(bool weights, bool biases)
     {
         if (weights)
             structure.ChangeLittleWeight();
