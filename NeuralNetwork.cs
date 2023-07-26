@@ -9,8 +9,8 @@ public class NeuralNetwork: MonoBehaviour
     List<List<float>> inputs = new List<List<float>>();
     List<List<float>> outputs = new List<List<float>>();
     public Functions functions = new Functions();
-
     float lr = 0.5f;
+
     public void SetStructure(params LA[] la)
     {
         int[] layer_count=new int[la.Length];
@@ -27,6 +27,10 @@ public class NeuralNetwork: MonoBehaviour
     {
         this.inputs = inputs;
         this.outputs = outputs;
+    }
+    public void SetVariables(List<List<float>> inputs)
+    {
+        this.inputs = inputs;
     }
     public void SetVariables(int b)
     {
@@ -48,16 +52,19 @@ public class NeuralNetwork: MonoBehaviour
     {
         for(int e = 0; e < epoch; e++)
         {
-            for(int batch=0; batch<batch_size; batch++)
+            for(int i=0;i<inputs.Count; i+=batch_size)
             {
-                SetVariables(batch);
-                Predict();
-                structure.SetDeltaValues();
-                structure.SetWeightsD(batch_size);
-                structure.SetBiasD(batch_size);
+                for (int batch = 0; batch < batch_size; batch++)
+                {
+                    SetVariables(batch+i);
+                    Predict();
+                    structure.SetDeltaValues();
+                    structure.SetWeightsD(batch_size);
+                    structure.SetBiasD(batch_size);
+                }
+                structure.UpdateWeights(lr);
+                structure.UpdateBias(lr);
             }
-            structure.UpdateWeights(lr);
-            structure.UpdateBias(lr);
         }
     }
     public List<float> Scale(List<float> input)
@@ -158,5 +165,12 @@ public class NeuralNetwork: MonoBehaviour
             structure.Layer(l).setBias(float.Parse(ReadText("Save " + name, line)));
             line += 1;
         }
+    }
+    public void ChangeVariables(bool weights, bool biases)
+    {
+        if (weights)
+            structure.ChangeLittleWeight();
+        if (biases)
+            structure.ChangeLittleBiases();
     }
 }
