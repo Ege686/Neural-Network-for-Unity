@@ -2,7 +2,7 @@
 It is a neural network brain(AI) for anything in Unity
 
 
-If you want to something think in Unity you can attach this script to it. But you need to write some basic commands in another script. Don't worry it is easy to use.
+If you want to make something think in Unity you can attach the NeuralNetwork.cs script to it. But you need to write some basic commands in another script. Don't worry it is easy to use.
 
 Before first step:
  The input and target output values need to be float list. And they have to be 2 dimension lists.
@@ -28,90 +28,79 @@ Before first step:
   (1)
   (1)
   (0)
+
+Also there is a Scale() method to scale the inputs between 0 and 1. It takes 1 dimensional float list and returns also 1 dimensional float list.
+
+     List<float> scaled_input=nn.Scale(input);
   
 In this example input and output lists' first lists' counts have to be 4. And each input's second layers' count has to be 2. Finally each target ouput's second layers' count has to be 1.
 
-First Step:
+1st Step:
  You need to find the AI script in the control script.
  All you need is create a variliable and then define the variliable to it:
 
-    public neural_network_AI brain;
+    public NeuralNetwork nn;
     void Start()
     {
-        brain = GetComponent<neural_network_AI>();  
+        brain = GetComponent<NeuralNetwork>();  
     }
- Second Step:
-  You need to sset some things. Or we can say you need to start the engine. You can do it with start() method.
- It takes 2 argument: Input list and output list as you setted them before the first step.
-   
-    brain.start(input,output);
- Third Step:
-  You need to set up the structure. And you can do it with add_hidden_layer() method.
-  add_hidden_layer() method takes 2 argument: node_count(neuron_count), activation_function
-  Basically this method creates a hidden layer. Input and output layer will be created aotomatically.
-  And there is two activation functions: relu and sigmoid
-  
-     brain.add_hidden_layer(5,"relu");
-     brain.add_hidden_layer(2,"relu");
-     //here it creates 2 hidden layers. First has 5 nodes and second has 2 nodes 
+ 2nd Step:
+  You need to set up the structure. And you can do it with SetStructure() method. It allows you to create layers. First one is input, till the last hidden and the last one is of course output layer.
+  SetStructure() method takes array argument of LA. Don't worry LA is not a complicated thing it just takes "node count" for the layer and the activation function for that layer.
+  There are bunch of activation functions: ReLU,ELU,LeakyReLU,Sigmoid,Tanh,Gaussian... You can find them in the Functions.cs script in the Members file.
+
+     nn.SetStructure(new LA(5, nn.functions.ReLU), new LA(3, nn.functions.Sigmoid), new LA(2));
+     //here it creates 3 layer(1 input with 5 nodes,1 hidden with 3 nodes, 1 output with 2 nodes). Output layer doesn't need to take a activation function
      
- Fourth Step:
-  You need to compile all the input, hidden and output layers. This can be done with set_structure() method.
-  It takes 2 arguments: output list and last layer's activicion function.
+ 3rd Step:
+  You need to set the inputs and outputs before training and predicting(Before predicting you don't need to set the output). This can be done with SetVariables() method.
+  It takes 2 arguments: input list and output list(again output does not necessary before predicting)
  
-       brain.set_structure(output, "sigmoid);
-   
-   So structure is complited.
-  Attaching input and output list:
-   Before every time you train or make a predict you need to assign the input and target outputs. When you making predict you don't need to assign the exact output values. It just can be all zeros. But output list's structure has to be same as you started.
-   So it takes 2 argument: input list and target_output list
-   
-       brain.attach_values(input, target_output);
+       nn.SetVariables(inputs);
+       nn.Predict();
+       //or
+       nn.SetVariables(inputs,target_outputs);
+       nn.Train(100,10);
        
    
    Predicting Values:
-     This can be done with predict() method. 
+     This can be done with Predict() method. 
      It takes 0 argument
         
-        brain.attach_values(input, target_output); //don't forget this command
-        brain.predict();
+        nn.SetVariables(input); //don't forget this command
+        nn.Predict();
      
     
- Also you will need to take output values. You can take it with get_predicted_values() method. It returns a float list that caries the predicted values.
+ Also you will need to take output values. You can take it with ouput() method. It returns a float value of the outputs' node that you clarified when you calling the method.
  
-         float output = brain.get_predicted_values()[0];
+         float output = nn.output(1);
          
          
  Training Part:
-   You need to train the neural network. So it can be done with procces() method.
-   It takes 1 argument: Epochs(how many times you want to train it)
-   And you also need to call attach_values() method to update input and output values. Here you need to attach the exact same values as target_output
+   You need to train the neural network. So it can be done with Train() method.
+   It takes 2 argument: Epochs(how many times you want to train it), Batch Size(How many examples you want to feed forward through the structure at once)
+   And you also need to call SetVariables() method to update input and output values. Here you need to attach the exact same values as target_output
+   (Don't lie, now it works with 1 sized input and output, I am working on how to that, it won't take much. If you are reading here probably I updated the script newly. So in 1 or 2 days it will be done don't worry)
    
-          brain.attach_values(input, output); //don't forget this command
-          brain.procces(6);
+          nn.SetVariables(input, target_output); //don't forget this command
+          nn.Train(100,10);
 
 
   Saving Part
-    Yes you also need to save your weights and bias values. So this can be done with save_weights() and save_bias() methods. These methods save values as txt file.
-    Each method takes 1 argument: name: name of the txt file.
+    Yes you also need to save your weights and bias values. So this can be done with SaveAll() method. These method saves values as txt file.
+    Method takes 1 argument: name: name of the txt file you want to save(You need to make a Saves folder in the Assets folder by manually to save them in there. I am working on that).
          
-          brain.save_weights("weights1");
-          brain.save_biass("bias1");
+          brain.SaveAll("Meahmut");
     
   Setting Part
-    So you saved your values but then what? Of course reading them(if you want). This can be done with set_weights() and set_bias() methods. It will read the txt file you had saved for values.
-    Each method takes 1 argument: name: name of the saved txt file.
+    So you saved your values but then what? Of course reading them(if you want). This can be done with SetSave() method. It will read the txt file you had saved for values.
+    Method takes 1 argument: name: name of the saved txt file.
     
-          brain.set_weights("weights1");
-          brain.set_biass("bias1");
+          nn.SetSave("Meahmut");
           
     
-  Change a little Part
+  Change a little Part(It will come in soon, I am working on that too. Oh boy you came early, I was not expecting you to come this early.)
      If you are making something learning by trying and with lots of agents you can use these ChangeALittleWeights() and ChangeALittleBias() methods. It will change agents saved weights and bias values. It will not rewrite the saved values txt file. It is only valid for that agent.
-     I will multiply yout weights and bias values something between 0.1 and 0.9 by random. You can change the range by editing the script. Methods are at the bottom of the script.
- 
-            ChangeALittleWeights();
-            ChangeALittleBias();
 
 Little Favor:
  If you are going to make a video about AI learns something and if you will use my code please don't be selfish and give references. Like giving the link of the script. Or saying it in the video. Thanks 
@@ -119,4 +108,4 @@ Little Favor:
 Example of AI learning something:
 https://youtu.be/pDmKVT0qgjM?t=445
 
-I made that video with my code(my code=this attached script). Video is Turkish but you can still see how it learns.
+I made that video with my code(It is a really old version of my AI. I changed lots of things since then. I made a art with code writing. Also I could take off its shit. I so dived into making it clean I could add extra variables to the classes. It would be done with an external script easly but I choose the cleaner version. It may effect on the performance but shouldn't effect too much. Just few extra variables. It is all that.). Video is Turkish but you can still see how it learns.
