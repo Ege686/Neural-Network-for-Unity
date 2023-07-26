@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 public class Structure 
 {
@@ -39,4 +39,7 @@ public class Structure
 
     public void SetBiasD(int batch_size) { for(int l=LayerCount-2; l>=0;l--) { Layer(l).BiasD(batch_size); } }
     public void UpdateBias(float lr) { for (int l = LayerCount - 2; l >= 0; l--) { Layer(l).UpdateBias(lr); } }
+
+    public void ChangeLittleWeight() { for (int l = 0; l < LayerCount - 1; l++) Layer(l).ChangeLittleWeights(); }
+    public void ChangeLittleBiases() { for (int l = 0; l < LayerCount - 1; l++) Layer(l).ChangeLittleBias(); }
 }
