@@ -99,8 +99,11 @@ In this example input and output lists' first lists' counts have to be 4. And ea
           nn.SetSave("Meahmut");
           
     
-  Change a little Part(It will come in soon, I am working on that too. Oh boy you came early, I was not expecting you to come this early.)
-     If you are making something learning by trying and with lots of agents you can use these ChangeALittleWeights() and ChangeALittleBias() methods. It will change agents saved weights and bias values. It will not rewrite the saved values txt file. It is only valid for that agent.
+  Change a little Part
+     If you are making something learning by trying and with lots of agents you can use these ChangeLittle method. It will change agents saved weights and bias values. It will not rewrite the saved values txt file. It is only valid for that agent.
+     It takes 2 argument: bool weights(should the weights' values change), bool biases(should the biases' values change)
+
+         nn.ChangeLittle(true,true);
 
 Little Favor:
  If you are going to make a video about AI learns something and if you will use my code please don't be selfish and give references. Like giving the link of the script. Or saying it in the video. Thanks 
