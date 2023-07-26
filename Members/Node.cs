@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Node
@@ -26,4 +26,5 @@ public class Node
     public void SetWeight(int weight,float value) { weights[weight] = value; }
     public void SetWeightD(int w,float d) { weights_d[w] += d; }
     public void UpdateWeights(float lr) { for(int w = 0; w < weights.Count; w++) { weights[w] += weights_d[w]*lr; weights_d[w] = 0; } }
+    public void ChangeLittleWeight() { for (int n = 0; n < weights.Count; n++) { weights[n] *= Random.Range(.8f, .1f); } }
 }
