@@ -79,8 +79,7 @@ In this example input and output lists' first lists' counts have to be 4. And ea
  Training Part:
    You need to train the neural network. So it can be done with Train() method.
    It takes 2 argument: Epochs(how many times you want to train it), Batch Size(How many examples you want to feed forward through the structure at once)
-   And you also need to call SetVariables() method to update input and output values. Here you need to attach the exact same values as target_output
-   (Don't lie, now it works with 1 sized input and output, I am working on how to that, it won't take much. If you are reading here probably I updated the script newly. So in 1 or 2 days it will be done don't worry)
+   And you also need to call SetVariables() method to update input and output values. Here you need to attach the exact same values as target_output.
    
           nn.SetVariables(input, target_output); //don't forget this command
           nn.Train(100,10);
