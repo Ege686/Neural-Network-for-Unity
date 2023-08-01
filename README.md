@@ -60,7 +60,7 @@ In this example input and output lists' first lists' counts have to be 4. And ea
        nn.Predict();
        //or
        nn.SetVariables(inputs,target_outputs);
-       nn.Train(100,10);
+       nn.Train(100,10,0.05f,0.1f);
        
    
    Predicting Values:
@@ -78,11 +78,11 @@ In this example input and output lists' first lists' counts have to be 4. And ea
          
  Training Part:
    You need to train the neural network. So it can be done with Train() method.
-   It takes 2 argument: Epochs(how many times you want to train it), Batch Size(How many examples you want to feed forward through the structure at once)
+   It takes 4 argument: Epochs(how many times you want to train it), Batch Size(How many examples you want to feed forward through the structure at once), lr(learning rate that will be multipled with the calculated changes for weights and biases), alpha(it is a constant for L2 regularization. If you don't want L2 just type 0.)
    And you also need to call SetVariables() method to update input and output values. Here you need to attach the exact same values as target_output.
    
           nn.SetVariables(input, target_output); //don't forget this command
-          nn.Train(100,10);
+          nn.Train(100,10,0.05f,0.1f);
 
 
   Saving Part
