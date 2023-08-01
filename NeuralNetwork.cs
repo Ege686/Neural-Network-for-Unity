@@ -63,8 +63,8 @@ public class NeuralNetwork : MonoBehaviour
                     structure.SetWeightsD(batch_size,alpha);
                     structure.SetBiasD();
                 }
-                structure.UpdateWeights(-lr,batch_size);
-                structure.UpdateBias(-lr,batch_size);
+                structure.UpdateWeights(lr,batch_size);
+                structure.UpdateBias(lr,batch_size);
             }
         }
     }
