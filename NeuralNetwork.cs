@@ -3,27 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
-public class NeuralNetwork: MonoBehaviour
+public class NeuralNetwork : MonoBehaviour
 {
-    Structure structure = new Structure();
+    public Structure structure = new Structure();
     List<List<float>> inputs = new List<List<float>>();
     List<List<float>> outputs = new List<List<float>>();
     public Functions functions = new Functions();
-    float lr = 0.5f;
 
     public void SetStructure(params LA[] la)
     {
-        int[] layer_count=new int[la.Length];
-        Functions.ActivationDelegate[] activation=new Functions.ActivationDelegate[la.Length];
+        int[] layer_count = new int[la.Length];
+        Functions.ActivationDelegate[] activation = new Functions.ActivationDelegate[la.Length];
         for (int i = 0; i < la.Length; i++)
         {
             layer_count[i] = la[i].LayerCount;
             activation[i] = la[i].Activation;
         }
-        structure=new Structure(layer_count);
+        structure = new Structure(layer_count);
         structure.setActiavations(activation);
+        structure.setLoss(la[la.Length - 1].Loss);
     }
-    public void SetVariables(List<List<float>> inputs,List<List<float>> outputs)
+    public void SetVariables(List<List<float>> inputs, List<List<float>> outputs)
     {
         this.inputs = inputs;
         this.outputs = outputs;
@@ -42,29 +42,32 @@ public class NeuralNetwork: MonoBehaviour
         if (outputs[b].Count == structure.Layer(structure.LayerCount - 1).NodeCount)
             structure.SetTargets(outputs[b]);
         else
-            Debug.LogError("Last Layer's Node Count(" + structure.Layer(structure.LayerCount-1).NodeCount + ") and targets' " + b + "th list's variables count(" + outputs[b].Count + ") does not match!");
+            Debug.LogError("Last Layer's Node Count(" + structure.Layer(structure.LayerCount - 1).NodeCount + ") and targets' " + b + "th list's variables count(" + outputs[b].Count + ") does not match!");
     }
     public void Predict()
     {
         structure.Forward();
     }
-    public void Train(int epoch,int batch_size)
+    public void Train(int epoch, int batch_size,float lr, float alpha)
     {
-        for(int e = 0; e < epoch; e++)
+        for (int e = 0; e < epoch; e++)
         {
-            for(int i=0;i<inputs.Count; i+=batch_size)
+            for (int i = 0; i < inputs.Count; i += batch_size)
             {
                 for (int batch = 0; batch < batch_size; batch++)
                 {
-                    SetVariables(batch+i);
+                    SetVariables(batch + i);
                     Predict();
+                    structure.SetLoss();
+                    //Debug.Log(structure.Loss);
                     structure.SetDeltaValues();
-                    structure.SetWeightsD(batch_size);
-                    structure.SetBiasD(batch_size);
+                    structure.SetWeightsD(batch_size,alpha);
+                    structure.SetBiasD();
                 }
-                structure.UpdateWeights(lr);
-                structure.UpdateBias(lr);
+                structure.UpdateWeights(lr,batch_size);
+                structure.UpdateBias(lr,batch_size);
             }
+            //print(structure.Layer(1).Node(0).Weight(0));
         }
     }
     public List<float> Scale(List<float> input)
@@ -72,7 +75,7 @@ public class NeuralNetwork: MonoBehaviour
         float biggest = 0;
         float smallest = Mathf.Infinity;
         List<float> result = new List<float>();
-        for(int n = 0; n < input.Count; n++)
+        for (int n = 0; n < input.Count; n++)
         {
             float x = input[n];
             result.Add(x);
@@ -81,10 +84,10 @@ public class NeuralNetwork: MonoBehaviour
             if (x < smallest)
                 smallest = x;
         }
-        float dif=biggest - smallest;
+        float dif = biggest - smallest;
         for (int n = 0; n < input.Count; n++)
         {
-            result[n]=(result[n]-smallest)/dif;
+            result[n] = (result[n] - smallest) / dif;
         }
         return result;
     }
@@ -110,7 +113,7 @@ public class NeuralNetwork: MonoBehaviour
     public void SaveAll(string name)
     {
         int weight_count = structure.WeightCount;
-        CreateText("Save " + name, "" + weight_count+"\n", true);
+        CreateText("Save " + name, "" + weight_count + "\n", true);
         SaveWeights(name);
         SaveBias(name);
     }
@@ -121,7 +124,7 @@ public class NeuralNetwork: MonoBehaviour
     }
     public void SaveWeights(string name)
     {
-        for (int l = 0; l < structure.LayerCount-1; l++)
+        for (int l = 0; l < structure.LayerCount - 1; l++)
         {
             for (int n = 0; n < structure.Layer(l).NodeCount; n++)
             {
@@ -133,10 +136,22 @@ public class NeuralNetwork: MonoBehaviour
             }
         }
     }
+    public void SaveNodes(string name)
+    {
+        CreateText("Save " + name, "", true);
+        for (int l = 0; l < structure.LayerCount; l++)
+        {
+            for (int n = 0; n < structure.Layer(l).NodeCount; n++)
+            {
+                 string value = structure.Layer(l).Node(n).DeltaValue +" "+l+" "+n + "\n";
+                 CreateText("Save " + name, value, false);
+            }
+        }
+    }
     public void SaveBias(string name)
     {
         //CreateText("bias " + name, "", true);
-        for (int l = 0; l < structure.LayerCount-1; l++)
+        for (int l = 0; l < structure.LayerCount - 1; l++)
         {
             string value = structure.Layer(l).Bias + "\n";
             CreateText("Save " + name, value, false);
@@ -145,7 +160,7 @@ public class NeuralNetwork: MonoBehaviour
     public void SetWeights(string name)
     {
         int sum = 1;
-        for (int l = 0; l < structure.LayerCount-1; l++)
+        for (int l = 0; l < structure.LayerCount - 1; l++)
         {
             for (int n = 0; n < structure.Layer(l).NodeCount; n++)
             {
@@ -159,8 +174,8 @@ public class NeuralNetwork: MonoBehaviour
     }
     public void SetBiases(string name)
     {
-        int line = int.Parse(ReadText("Save " + name, 0))+1;
-        for (int l = 0; l < structure.LayerCount-1; l++)
+        int line = int.Parse(ReadText("Save " + name, 0)) + 1;
+        for (int l = 0; l < structure.LayerCount - 1; l++)
         {
             structure.Layer(l).setBias(float.Parse(ReadText("Save " + name, line)));
             line += 1;
