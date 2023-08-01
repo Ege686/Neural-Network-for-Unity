@@ -1,25 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Layer 
+public class Layer
 {
-    List<Node> nodes=new List<Node>();
+    List<Node> nodes = new List<Node>();
     int node_count = 0;
     float bias = 0;
     public Functions.ActivationDelegate activation;
     public Functions.ActivationDelegate before_activation;
+    public Functions.LossDelegate loss;
     Layer connection_layer;
     List<float> target_outputs = null;
     float bias_d = 0;
-    public Layer(int node_count, float bias ,int weight_count)
+    float loss_value = 0;
+    public Layer(int node_count, float bias, int weight_count)
     {
         this.node_count = node_count;
         this.bias = bias;
-        for(int i = 0; i < node_count; i++)
+        for (int i = 0; i < node_count; i++)
         {
             Node n = new Node(0, 0);
             n.SetWeight(weight_count);
             nodes.Add(n);
+            this.bias = Random.Range(0f, 4f);
         }
     }
     public void setActivation(Functions.ActivationDelegate activation)
@@ -30,50 +33,72 @@ public class Layer
     {
         this.before_activation = before_activation;
     }
+    public void setLoss(Functions.LossDelegate loss)
+    {
+        this.loss = loss;
+    }
     public void setBias(float bias)
     {
         this.bias = bias;
     }
-    public float Activation(float x, bool derivative) { return activation(x,derivative); }
-    public float BeforeActivation(float x, bool derivative) { return before_activation(x,derivative); }
+    public float Activation(float x, bool derivative, Functions.LossDelegate loss, params float[] a) { return activation(x, derivative,loss,a); }
+    public float BeforeActivation(float x, bool derivative, Functions.LossDelegate loss, params float[] a) { return before_activation(x, derivative,loss,a); }
+    public float Loss(float t, float p, int node_count, bool derivative) { return loss(t, p, node_count, derivative); }
     public int NextNodeCount { get { return connection_layer.NodeCount; } }
     public int NodeCount { get { return nodes.Count; } }
     public float Bias { get { return bias; } }
-    public int WeightCount { get { int c = 0; for(int n = 0; n < NodeCount; n++) { c+= Node(n).WeightCount; }return c; } }
+    public int WeightCount { get { int c = 0; for (int n = 0; n < NodeCount; n++) { c += Node(n).WeightCount; } return c; } }
     public Node NextNode(int n) { return connection_layer.Node(n); }
     public Node Node(int n) { return nodes[n]; }
     public float GetTarget(int t) { return target_outputs[t]; }
+    public float LossValue { get { for (int o = 0; o < NodeCount; o++) loss_value += Loss(target_outputs[o], Node(o).Value, NodeCount, false); return loss_value; } }
 
-    public void UpdateWeights(float lr) { for(int i = 0; i < nodes.Count; i++) { Node(i).UpdateWeights(lr);} }
+    public void UpdateWeights(float lr, int batch_size) { for (int i = 0; i < nodes.Count; i++) { Node(i).UpdateWeights(lr,batch_size); } }
     public void SetConnection(Layer connection_layer) { this.connection_layer = connection_layer; }
     public void SetTargets(List<float> target_outputs) { this.target_outputs = target_outputs; }
 
-    public void Forward() { 
-        float x = 0; 
-        for(int n = 0; n < NextNodeCount;n++) { 
-            for(int nn=0; nn < NodeCount; nn++) { x += Node(nn).Forward(n); }
+    public void Forward()
+    {
+        float[] a=new float[NextNodeCount*2+1];
+        for (int n = 0; n < NextNodeCount; n++)
+        {
+            float x = 0;
+            for (int nn = 0; nn < NodeCount; nn++) { x += Node(nn).Forward(n); }
             x += Bias;
-            x = Activation(x, false);
+            a[n] = x;
             connection_layer.Node(n).SetValue(x);
-        } 
+        }
+        for (int n = 0; n < NextNodeCount; n++)
+        {
+            float x = connection_layer.Node(n).Value;
+            x = Activation(x, false, this.loss ,a);
+            connection_layer.Node(n).SetValue(x);
+        }
+        
     }
 
-    public void DeltaValue(int node) {
+    public void DeltaValue(int node)
+    {
         float x = 0;
-        if(connection_layer==null)
-            x = (2 / NodeCount) * (GetTarget(node) - Node(node).Value) * BeforeActivation(Node(node).Value, true);
-        for (int n = 0; connection_layer!=null && n < connection_layer.NodeCount; n++) { x += connection_layer.Node(n).DeltaValue * Node(node).Weight(n); }
-        x *= BeforeActivation(nodes[node].Value,true);
+        if (connection_layer == null) {
+            float[] output = new float[NodeCount*2+1];
+            for (int o = 0; o < NodeCount; o++) output[o] = Node(o).Value;
+            for (int o = NodeCount; o < NodeCount*2; o++) output[o] = target_outputs[o-NodeCount];
+            output[output.Length - 1] = target_outputs[node];
+            x +=  BeforeActivation(Node(node).Value, true,this.loss,output);
+        }
+        for (int n = 0; connection_layer != null && n < connection_layer.NodeCount; n++) { x += connection_layer.Node(n).DeltaValue * Node(node).Weight(n); }
+        if(connection_layer != null) x *= BeforeActivation(Node(node).Value,true, null);
         Node(node).SetDeltaValue(x);
     }
-    public void DeltaValues() { for(int n = 0; n < nodes.Count; n++) { DeltaValue(n); } }
+    public void DeltaValues() { for (int n = 0; n < nodes.Count; n++) { DeltaValue(n); } }
 
-    public void WeightD(int node,int batch_size) { for(int n = 0; n < connection_layer.NodeCount; n++) { Node(node).SetWeightD(n, connection_layer.Node(n).DeltaValue * Node(node).Value/batch_size); } }
-    public void WeightsD(int batch_size) { for(int n = 0; n < NodeCount; n++) { WeightD(n,batch_size); } }
+    public void WeightD(int node, int batch_size,float alpha) { for (int n = 0; n < connection_layer.NodeCount; n++) { Node(node).SetWeightD(n, (connection_layer.Node(n).DeltaValue * Node(node).Value),n,alpha); } }
+    public void WeightsD(int batch_size,float alpha) { for (int n = 0; n < NodeCount; n++) { WeightD(n, batch_size,alpha); } }
 
-    public void UpdateBias(float lr) { bias += bias_d*lr; bias_d = 0; }
-    public void BiasD(int batch_size) { for (int n = 0; n < connection_layer.NodeCount; n++) bias_d += connection_layer.Node(n).DeltaValue/batch_size; }
+    public void UpdateBias(float lr, int batch_size) { bias += bias_d * lr/batch_size; bias_d = 0; }
+    public void BiasD() { for (int n = 0; n < connection_layer.NodeCount; n++) bias_d += connection_layer.Node(n).DeltaValue; }
 
     public void ChangeLittleWeights() { for (int n = 0; n < NodeCount; n++) Node(n).ChangeLittleWeight(); }
-    public void ChangeLittleBias() { bias*= Random.Range(.8f, .1f); }
+    public void ChangeLittleBias() { bias *= Random.Range(.8f, 1f); }
 }
