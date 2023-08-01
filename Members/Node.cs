@@ -5,8 +5,8 @@ public class Node
 {
     float value = 0;
     float delta_value = 0;
-    List<float> weights=new List<float>();
-    List<float> weights_d=new List<float>();
+    List<float> weights = new List<float>();
+    List<float> weights_d = new List<float>();
     public Node(float value, float delta_value)
     {
         this.value = value;
@@ -17,14 +17,14 @@ public class Node
     public int WeightCount { get { return weights.Count; } }
     public float Weight(int w) { return weights[w]; }
 
-    public float Forward(int n) { return Value*Weight(n); }
+    public float Forward(int n) { return Value * Weight(n); }
 
     public void SetValue(float value) { this.value = value; }
     public void SetDeltaValue(float delta_value) { this.delta_value = delta_value; }
 
-    public void SetWeight(int weight) { for (int w = 0; w < weight; w++) { weights.Add(Random.Range(0f, .99f)); weights_d.Add(0); } }
-    public void SetWeight(int weight,float value) { weights[weight] = value; }
-    public void SetWeightD(int w,float d) { weights_d[w] += d; }
-    public void UpdateWeights(float lr) { for(int w = 0; w < weights.Count; w++) { weights[w] += weights_d[w]*lr; weights_d[w] = 0; } }
-    public void ChangeLittleWeight() { for (int n = 0; n < weights.Count; n++) { weights[n] *= Random.Range(.8f, .1f); } }
+    public void SetWeight(int weight) { for (int w = 0; w < weight; w++) { weights.Add(Random.Range(-0.99f, .99f)); weights_d.Add(0); } }
+    public void SetWeight(int weight, float value) { weights[weight] = value; }
+    public void SetWeightD(int w, float d,int n,float alpha) { weights_d[w] += d+(2 * alpha * Weight(n)); }
+    public void UpdateWeights(float lr, int batch_size) { for (int w = 0; w < weights.Count; w++) { weights[w] += weights_d[w] * lr/batch_size; weights_d[w] = 0; } }
+    public void ChangeLittleWeight() { for (int n = 0; n < weights.Count; n++) { weights[n] *= Random.Range(.8f, 1f); } }
 }
