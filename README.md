@@ -49,8 +49,8 @@ In this example input and output lists' first lists' counts have to be 4. And ea
   SetStructure() method takes array argument of LA. Don't worry LA is not a complicated thing it just takes "node count" for the layer and the activation function for that layer.
   There are bunch of activation functions: ReLU,ELU,LeakyReLU,Sigmoid,Tanh,Gaussian... You can find them in the Functions.cs script in the Members file.
 
-     nn.SetStructure(new LA(5, nn.functions.ReLU), new LA(3, nn.functions.Sigmoid), new LA(2));
-     //here it creates 3 layer(1 input with 5 nodes,1 hidden with 3 nodes, 1 output with 2 nodes). Output layer doesn't need to take a activation function
+     nn.SetStructure(new LA(5, nn.functions.ReLU), new LA(3, nn.functions.Sigmoid), new LA(2,nn.functions.MSE));
+     //here it creates 3 layer(1 input with 5 nodes,1 hidden with 3 nodes, 1 output with 2 nodes). Output layer will need a loss function that is also in      the Functions.cs script
      
  3rd Step:
   You need to set the inputs and outputs before training and predicting(Before predicting you don't need to set the output). This can be done with SetVariables() method.
