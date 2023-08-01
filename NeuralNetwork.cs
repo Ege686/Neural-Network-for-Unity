@@ -59,7 +59,6 @@ public class NeuralNetwork : MonoBehaviour
                     SetVariables(batch + i);
                     Predict();
                     structure.SetLoss();
-                    //Debug.Log(structure.Loss);
                     structure.SetDeltaValues();
                     structure.SetWeightsD(batch_size,alpha);
                     structure.SetBiasD();
@@ -67,7 +66,6 @@ public class NeuralNetwork : MonoBehaviour
                 structure.UpdateWeights(-lr,batch_size);
                 structure.UpdateBias(-lr,batch_size);
             }
-            //print(structure.Layer(1).Node(0).Weight(0));
         }
     }
     public List<float> Scale(List<float> input)
@@ -136,21 +134,8 @@ public class NeuralNetwork : MonoBehaviour
             }
         }
     }
-    public void SaveNodes(string name)
-    {
-        CreateText("Save " + name, "", true);
-        for (int l = 0; l < structure.LayerCount; l++)
-        {
-            for (int n = 0; n < structure.Layer(l).NodeCount; n++)
-            {
-                 string value = structure.Layer(l).Node(n).DeltaValue +" "+l+" "+n + "\n";
-                 CreateText("Save " + name, value, false);
-            }
-        }
-    }
     public void SaveBias(string name)
     {
-        //CreateText("bias " + name, "", true);
         for (int l = 0; l < structure.LayerCount - 1; l++)
         {
             string value = structure.Layer(l).Bias + "\n";
