@@ -31,6 +31,7 @@ public class NeuralNetwork : MonoBehaviour
     public void SetVariables(List<List<float>> inputs)
     {
         this.inputs = inputs;
+        SetVariables(0);
     }
     public void SetVariables(int b)
     {
