@@ -116,7 +116,6 @@ public class Functions
         float epsilon = 1e-6f;
         p = Mathf.Clamp(p, epsilon, 1 - epsilon);
         float x = -((t / p) - ((1 - t) / (1 - p)));
-        Debug.Log(t + " " + p + " " + x);
         return x;
     }
     //Mean Absolute Percentage Error
