@@ -33,6 +33,8 @@ public class Structure
 
     public void SetTargets(List<float> target_outputs) { this.target_outputs = target_outputs; Layer(LayerCount - 1).SetTargets(target_outputs); }
     public void UpdateWeights(float lr, int batch_size) { for (int l = 0; l < LayerCount; l++) { Layer(l).UpdateWeights(lr,batch_size); } }
+    public void Dropout() { for(int l = 0; l < LayerCount-1; l++) { Layer(l).Dropout(); } }
+    public void DropoutP(float[] p) { for(int l = 0; l < LayerCount-1; l++) { Layer(l).DropoutP(p[l]); } }
 
     public void Forward() { for (int l = 0; l < LayerCount - 1; l++) { Layer(l).Forward(); } }
 
