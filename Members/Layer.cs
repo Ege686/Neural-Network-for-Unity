@@ -13,6 +13,7 @@ public class Layer
     List<float> target_outputs = null;
     float bias_d = 0;
     float loss_value = 0;
+    float dropout_p = 0;
     public Layer(int node_count, float bias, int weight_count)
     {
         this.node_count = node_count;
@@ -56,6 +57,8 @@ public class Layer
     public void UpdateWeights(float lr, int batch_size) { for (int i = 0; i < nodes.Count; i++) { Node(i).UpdateWeights(lr,batch_size); } }
     public void SetConnection(Layer connection_layer) { this.connection_layer = connection_layer; }
     public void SetTargets(List<float> target_outputs) { this.target_outputs = target_outputs; }
+    public void Dropout() { for(int n = 0; n < (int)(dropout_p * NodeCount); n++) { int r_n = Random.Range(0, NodeCount); while (Node(r_n).GetDroupout) { r_n = Random.Range(0, NodeCount); } Node(r_n).Droupout(true); } }
+    public void DropoutP(float p) { dropout_p = p; }
 
     public void Forward()
     {
@@ -63,7 +66,7 @@ public class Layer
         for (int n = 0; n < NextNodeCount; n++)
         {
             float x = 0;
-            for (int nn = 0; nn < NodeCount; nn++) { x += Node(nn).Forward(n); }
+            for (int nn = 0; nn < NodeCount; nn++) { x += Node(nn).Forward(n,1-dropout_p); }
             x += Bias;
             a[n] = x;
             connection_layer.Node(n).SetValue(x);
@@ -93,7 +96,7 @@ public class Layer
     }
     public void DeltaValues() { for (int n = 0; n < nodes.Count; n++) { DeltaValue(n); } }
 
-    public void WeightD(int node, int batch_size,float alpha) { for (int n = 0; n < connection_layer.NodeCount; n++) { Node(node).SetWeightD(n, (connection_layer.Node(n).DeltaValue * Node(node).Value),n,alpha); } }
+    public void WeightD(int node, int batch_size,float alpha) { for (int n = 0; n < connection_layer.NodeCount; n++) { Node(node).SetWeightD(n, (connection_layer.Node(n).DeltaValue * Node(node).Value),n,alpha); } Node(node).Droupout(false); }
     public void WeightsD(int batch_size,float alpha) { for (int n = 0; n < NodeCount; n++) { WeightD(n, batch_size,alpha); } }
 
     public void UpdateBias(float lr, int batch_size) { bias += bias_d * lr/batch_size; bias_d = 0; }
