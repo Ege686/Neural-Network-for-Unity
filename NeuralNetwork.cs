@@ -14,14 +14,18 @@ public class NeuralNetwork : MonoBehaviour
     {
         int[] layer_count = new int[la.Length];
         Functions.ActivationDelegate[] activation = new Functions.ActivationDelegate[la.Length];
+        float[] p = new float[la.Length];
         for (int i = 0; i < la.Length; i++)
         {
             layer_count[i] = la[i].LayerCount;
             activation[i] = la[i].Activation;
+            if (i != la.Length - 1)
+                p[i] = la[i].DropoutP;
         }
         structure = new Structure(layer_count);
         structure.setActiavations(activation);
         structure.setLoss(la[la.Length - 1].Loss);
+        structure.DropoutP(p);
     }
     public void SetVariables(List<List<float>> inputs, List<List<float>> outputs)
     {
@@ -49,12 +53,14 @@ public class NeuralNetwork : MonoBehaviour
     {
         structure.Forward();
     }
-    public void Train(int epoch, int batch_size,float lr, float alpha)
+    public void Train(int epoch, int batch_size,float lr, float alpha,bool dropout)
     {
         for (int e = 0; e < epoch; e++)
         {
             for (int i = 0; i < inputs.Count; i += batch_size)
             {
+                if (dropout)
+                    structure.Dropout();
                 for (int batch = 0; batch < batch_size; batch++)
                 {
                     SetVariables(batch + i);
