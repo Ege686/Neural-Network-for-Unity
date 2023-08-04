@@ -46,10 +46,10 @@ In this example input and output lists' first lists' counts have to be 4. And ea
     }
  2nd Step:
   You need to set up the structure. And you can do it with SetStructure() method. It allows you to create layers. First one is input, till the last hidden and the last one is of course output layer.
-  SetStructure() method takes array argument of LA. Don't worry LA is not a complicated thing it just takes "node count" for the layer and the activation function for that layer.
+  SetStructure() method takes array argument of LA. Don't worry LA is not a complicated thing it just takes "node count" for the layer and the activation function for that layer. Also you can add Dropout value for the layer if you want to make a dropout. If you don't add simply dropout value becomes 0.
   There are bunch of activation functions: ReLU,ELU,LeakyReLU,Sigmoid,Tanh,Gaussian... You can find them in the Functions.cs script in the Members file.
 
-     nn.SetStructure(new LA(5, nn.functions.ReLU), new LA(3, nn.functions.Sigmoid), new LA(2,nn.functions.MSE));
+     nn.SetStructure(new LA(5, nn.functions.ReLU,0.2f), new LA(3, nn.functions.Sigmoid,0.4f), new LA(2,nn.functions.MSE));
      //here it creates 3 layer(1 input with 5 nodes,1 hidden with 3 nodes, 1 output with 2 nodes). Output layer will need a loss function that is also in      the Functions.cs script
      
  3rd Step:
@@ -59,7 +59,7 @@ In this example input and output lists' first lists' counts have to be 4. And ea
        nn.SetVariables(inputs);
        nn.Predict();
        //or
-       nn.SetVariables(inputs,target_outputs);
+       nn.SetVariables(inputs,target_outputs,false);
        nn.Train(100,10,0.05f,0.1f);
        
    
@@ -78,11 +78,11 @@ In this example input and output lists' first lists' counts have to be 4. And ea
          
  Training Part:
    You need to train the neural network. So it can be done with Train() method.
-   It takes 4 argument: Epochs(how many times you want to train it), Batch Size(How many examples you want to feed forward through the structure at once), lr(learning rate that will be multipled with the calculated changes for weights and biases), alpha(it is a constant for L2 regularization. If you don't want L2 just type 0.)
+   It takes 5 argument: Epochs(how many times you want to train it), Batch Size(How many examples you want to feed forward through the structure at once), lr(learning rate that will be multipled with the calculated changes for weights and biases), alpha(it is a constant for L2 regularization. If you don't want L2 just type 0.), dropout(it is a bool for do you want a dropout)
    And you also need to call SetVariables() method to update input and output values. Here you need to attach the exact same values as target_output.
    
           nn.SetVariables(input, target_output); //don't forget this command
-          nn.Train(100,10,0.05f,0.1f);
+          nn.Train(100,10,0.05f,0.1f,true);
 
 
   Saving Part
